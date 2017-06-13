@@ -40,6 +40,31 @@
        (filter identity)
        count))
 
+;; To answer this question we need to consider all possible pairings:
+;; (note that each of the below needs to be doubled)
+;; - Two hodos: (k / total) + (k-1 / dtotal)
+;; - hodo and het: (k / total) + (m / dtotal)
+;; - two hets: (m / total) + (m - 1) / dtotal
+;; - het and hore: (m / total) + (n / dtotal)
+;; - two hores: (n / total) + (n - 1 / dtotal)
+;; - hodo and hore: (k / total) + (n / dtotal)
+(defn dominant-chance
+  "Given population numbers for:
+     k - homozygous dominant
+     m - heterozygous
+     n - homozygous recessive
+   Return the probability that any random pair's offspring will have at least
+   one copy of the dominant allele."
+  [k m n]
+  (let [total (+ k m n)
+        kk (*   (/ k total) (/ (dec k) (dec total)))
+        km (* 2 (/ k total) (/ m (dec total)))
+        mm (*   (/ m total) (/ (dec m) (dec total)))
+        mn (* 2 (/ m total) (/ n (dec total)))
+        nn (*   (/ n total) (/ (dec n) (dec total)))
+        kn (* 2 (/ k total) (/ n (dec total)))]
+    (+ kk km (* 0.75 mm) (* 0.5 mn) kn)))
+
 (defn run
   "Takes a function and executes it against the dataset resource."
   [f]
