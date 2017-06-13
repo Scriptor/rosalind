@@ -1,6 +1,8 @@
 (ns rosalind.core
   (:require [clojure.java.io :as io]
-            [clojure.string :as str]))
+            [clojure.string :as str]
+            [rosalind.fasta :as fasta]
+            [clojure.pprint :as pp]))
 
 (def getters
   "A collection of getters for each base."
@@ -88,6 +90,24 @@
                          (when (= t (subs s' 0 tlen))
                            ;; Increment because result must be 1-based
                            (inc i)))))))
+
+(defn gc-content
+  "Return the gc content of a given DNA string"
+  [s]
+  (-> (/ (count (filter #{\C \G} s))
+         (count s))
+      float
+      (* 100)))
+
+(defn compute-fasta-gc
+  "Given a fasta file find the string with the highest GC content and
+   return its label and GC percentage."
+  [f]
+  (let [fasta (fasta/import-fasta f)]
+    (->> fasta
+         (map #(vector (first %) (float (gc-content (second %)))))
+         (sort-by second >)
+         first)))
 
 (defn run
   "Takes a function and executes it against the dataset resource."
