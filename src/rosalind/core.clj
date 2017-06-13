@@ -65,6 +65,17 @@
         kn (* 2 (/ k total) (/ n (dec total)))]
     (+ kk km (* 0.75 mm) (* 0.5 mn) kn)))
 
+(defn wascally
+  "Fibonacci except each rabbit pair produces k more pairs instead of just one.
+   n is # of months/generations."
+  [n k]
+  (loop [n       (dec n)
+         adults  0
+         bunnies 1]
+    (if (zero? n)
+      (+ adults bunnies)
+      (recur (dec n) (+ adults bunnies) (* adults k)))))
+
 (defn run
   "Takes a function and executes it against the dataset resource."
   [f]
