@@ -76,6 +76,19 @@
       (+ adults bunnies)
       (recur (dec n) (+ adults bunnies) (* adults k)))))
 
+(defn subs-locs
+  "Return the positions of the given DNA substring t in the larger string s.
+   Note that the positions must be 1-based."
+  [s t]
+  (let [tlen (count t)]
+    (->> s
+         (iterate #(subs % 1))
+         (take-while #(>= (count %) tlen))
+         (keep-indexed (fn [i s']
+                         (when (= t (subs s' 0 tlen))
+                           ;; Increment because result must be 1-based
+                           (inc i)))))))
+
 (defn run
   "Takes a function and executes it against the dataset resource."
   [f]
