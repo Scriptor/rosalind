@@ -15,6 +15,25 @@
    \C \G
    \G \C})
 
+(def codon-map
+  "Map of RNA codons to their amino acid codes (or to the stop code)."
+  {"AUA" "I", "CAU" "H", "GAG" "E", "GUG" "V", "UGA" "Stop", "CUU" "L", "CGU" "R",
+   "CAA" "Q", "AGC" "S", "GAA" "E", "GUC" "V", "GUA" "V", "UAC" "Y", "GAU" "D",
+   "ACA" "T", "CUC" "L", "UCC" "S", "GCC" "A", "UAA" "Stop", "CUA" "L", "GGC" "G",
+   "CGC" "R", "ACU" "T", "ACC" "T", "AGU" "S", "UUC" "F", "GGG" "G", "CGG" "R",
+   "CAG" "Q", "AAC" "N", "ACG" "T", "UGC" "C", "CUG" "L", "AAG" "K", "GGU" "G",
+   "AAU" "N", "UGG" "W", "CGA" "R", "CCA" "P", "CCU" "P", "AUU" "I", "CCC" "P",
+   "CAC" "H", "AGA" "R", "UCU" "S", "UCA" "S", "UUU" "F", "GCG" "A", "UAG" "Stop",
+   "GAC" "D", "AUG" "M", "UAU" "Y", "UGU" "C", "CCG" "P", "GGA" "G", "AGG" "R",
+   "UCG" "S", "GUU" "V", "AAA" "K", "AUC" "I", "GCU" "A", "UUG" "L", "UUA" "L",
+   "GCA" "A"})
+
+(defn stop?
+  "Returns whether the given string corresponds to a stop codon as used in
+   `codon-map'"
+  [s]
+  (= s "Stop"))
+
 (defn base-count
   "Returns a vector of the count for each base in the given string."
   [s]
@@ -108,6 +127,16 @@
          (map #(vector (first %) (float (gc-content (second %)))))
          (sort-by second >)
          first)))
+
+(defn translation
+  "Given the RNA string `s' return a sequence of the amino acid codes it
+   will translate to.`"
+  [s]
+  (->> s
+       (partition 3)
+       (map (comp codon-map (partial apply str)))
+       (take-while (complement stop?))
+       (apply str)))
 
 (defn run
   "Takes a function and executes it against the dataset resource."
