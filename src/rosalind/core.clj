@@ -52,7 +52,7 @@
   (->> s
        (replace complements)
        reverse
-       (apply str)))
+       str/join))
 
 (defn point-mut-count
   "Given two DNA sequences count the number of point mutation differences."
@@ -134,9 +134,9 @@
   [s]
   (->> s
        (partition 3)
-       (map (comp codon-map (partial apply str)))
+       (map (comp codon-map str/join))
        (take-while (complement stop?))
-       (apply str)))
+       str/join))
 
 (defn run
   "Takes a function and executes it against the dataset resource."
