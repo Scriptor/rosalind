@@ -1,12 +1,16 @@
 (ns rosalind.core
+  (:refer-clojure :exclude [bases])
   (:require [clojure.java.io :as io]
             [clojure.string :as str]
             [rosalind.fasta :as fasta]
             [clojure.pprint :as pp]))
+(def bases
+  "The four DNA bases in the order we most often work with."
+  [\A \C \G \T])
 
 (def getters
   "A collection of getters for each base."
-  (mapv (fn [c] #(get % c)) [\A \C \G \T]))
+  (mapv (fn [c] #(get % c)) bases))
 
 (def complements
   "Map of nucleotides and their complements."
@@ -137,6 +141,33 @@
        (map (comp codon-map str/join))
        (take-while (complement stop?))
        str/join))
+
+(defn profile-matrix
+  "Given a collection of DNA strings returns the profile matrix."
+  [strs]
+  (->> strs
+       (apply map #(base-count %&))
+       (map (partial replace {nil 0}))))
+
+(defn mlca
+  "Finds the most likely common ancestor of a collection of DNA strings
+   from the given profile matrix."
+  [matrix]
+  (->> matrix
+       (map #(zipmap bases %))
+       (map #(apply max-key % (keys %)))
+       str/join))
+
+(defn consensus-and-profile
+  "Displays the profile matrix and the most likely common ancestor from
+   the DNA strings in the given FASTA file."
+  [f]
+  (let [fasta    (fasta/import-fasta f)
+        matrix   (profile-matrix (vals fasta))
+        ancestor (mlca matrix)]
+    (println ancestor)
+    (doseq [[base base-counts] (map vector bases (apply map vector matrix))]
+      (println (str base ": " (str/join " " base-counts))))))
 
 (defn run
   "Takes a function and executes it against the dataset resource."
